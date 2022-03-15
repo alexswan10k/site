@@ -2,8 +2,6 @@ import jp from "jmespath";
 import { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router";
 
-//jp.search()
-
 function b64EncodeUnicode(str: string) {
     return btoa(encodeURIComponent(str));
 };
@@ -12,34 +10,35 @@ function UnicodeDecodeB64(str: string) {
     return decodeURIComponent(atob(str));
 };
 
-// write a function to turn a string to base 64 string
-
-type State = {
+type IptState = {
     json: string,
     search: string,
+}
+
+type State = IptState & {
     result: string
 }
 
 export const JsonComp = () => {
     const params = useParams();
-    const l = useLocation();
-    console.log("params", params, l)
-    const m = params["payload"];
+    const payload = params["payload"];
 
-    let jsonS: State = {json: "", search: "", result: ""};
+    let jsonS: IptState = {json: "", search: ""};
     try {
-        const decoded = UnicodeDecodeB64(m != null ? m : "")
-        jsonS = JSON.parse(m != null ? decoded : "{}");
+        const decoded = UnicodeDecodeB64(payload != null ? payload : "")
+        jsonS = JSON.parse(payload != null ? decoded : "{}");
     }
     catch (ex) {
         console.error(ex);
     }
 
-    const [state, setState] = useState<State>({json: jsonS?.json, search: jsonS?.search, result: jsonS?.result })
+    const [state, setState] = useState<State>({json: jsonS?.json, search: jsonS?.search, result: "" })
 
     const navigate = useNavigate()
-    const setStateByNav = (s: State) => {
-        navigate(`/json/${b64EncodeUnicode(JSON.stringify(s))}`)
+    const setStateByNav = (s: IptState) => {
+        const b64 = b64EncodeUnicode(JSON.stringify(s))
+        console.log(b64)
+        navigate(`/json/${s}`)
     }
     const setJson = (json: string) => setState({ ...state, json })
     const setSearch = (search: string) => setState({ ...state, search })
@@ -48,7 +47,8 @@ export const JsonComp = () => {
     useEffect(() => {
         try{
             const res = jp.search(JSON.parse(state.json), state.search);
-            setResult(res)
+            if(typeof(res) === "string") setResult(res)
+            else setResult(JSON.stringify(res))
         }
         catch(ex){
             console.error(ex);
@@ -64,7 +64,7 @@ export const JsonComp = () => {
             Json:
         <textarea value={state.json} onChange={x => setJson(x.target.value)}  />
         </div>
-        <button onClick={() => setStateByNav(state)}>Update link</button>
+        <button onClick={() => setStateByNav({ json: state.json, search: state.search })}>Update link</button>
         <div>
         {state.result}
         </div>

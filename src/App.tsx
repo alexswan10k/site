@@ -20,6 +20,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route index element={<Home />} />
+          <Route path="json" element={<JsonComp />} />
           <Route path="json/:payload" element={<JsonComp />} />
         </Routes>
       </BrowserRouter>
