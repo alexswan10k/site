@@ -25,7 +25,7 @@ export const JsonComp = () => {
 
     let jsonS: IptState = {json: "", search: ""};
     try {
-        const decoded = UnicodeDecodeB64(payload != null ? payload : "")
+        const decoded = decodeURIComponent(payload != null ? payload : "") //UnicodeDecodeB64(payload != null ? payload : "")
         jsonS = JSON.parse(payload != null ? decoded : "{}");
     }
     catch (ex) {
@@ -36,9 +36,8 @@ export const JsonComp = () => {
 
     const navigate = useNavigate()
     const setStateByNav = (s: IptState) => {
-        const b64 = b64EncodeUnicode(JSON.stringify(s))
-        console.log(b64)
-        navigate(`/json/${s}`)
+        const b64 = encodeURIComponent(JSON.stringify(s)) //b64EncodeUnicode(JSON.stringify(s))
+        navigate(`/json/${b64}`)
     }
     const setJson = (json: string) => setState({ ...state, json })
     const setSearch = (search: string) => setState({ ...state, search })
